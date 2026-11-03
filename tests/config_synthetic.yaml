@@ -1,0 +1,12 @@
+# Overrides for the synthetic run. Create the data with tests/make_synthetic_data.py, then
+#   python run_pipeline.py --config tests/config_synthetic.yaml
+
+paths:
+  raw: data/synthetic/raw
+  processed: data/synthetic/processed
+  tables: data/synthetic/output/tables
+  figures: data/synthetic/output/figures
+  report: data/synthetic/output/replication_report.md
+
+replication:
+  targets: null                 # thesis numbers do not apply to fake data

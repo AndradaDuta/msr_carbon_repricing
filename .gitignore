@@ -222,3 +222,5 @@ data/raw/
 data/processed/
 *.parquet
 .env
+data/synthetic/
+.DS_Store

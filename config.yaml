@@ -1,0 +1,91 @@
+# Single source of truth for the pipeline. Every parameter varied in the thesis is
+# here, so a robustness change is a one-line edit. Paths are relative to the repo root.
+
+paths:
+  raw: data/raw                 # licensed or external inputs, never committed (see DATA.md)
+  processed: data/processed     # everything the pipeline builds
+  events: data/events/EU_MSR_Events_sign.xlsx
+  tables: output/tables
+  figures: output/figures
+  report: output/replication_report.md
+
+raw_files:
+  constituents: compustat_stoxx600.xlsx      # Compustat constituents, GVKEYX 150376
+  factset: factset_stoxx600.xlsx             # FactSet snapshot, validation only (optional)
+  returns: stoxx600_daily_returns_2010_2025.parquet   # step 1 output, also the entry point without WRDS
+  factors: europe_ff5_mom_daily.csv
+  fx: fx_to_usd_daily_selected_currencies.csv
+  brent: brent_dcoilbrenteu.csv
+  emissions: emissions_revenue_with_isin_key_final.xlsx
+  method: Emission_Method.xlsx
+
+processed_files:
+  usd_panel: stoxx_600_returns_ff5_mom_usd_2010_2025.parquet
+  ar: stoxx600_AR_2013_2025_{window}.parquet
+  panel: stoxx600_panel_step5_{window}.parquet
+  carbon: carbon_firm_year.parquet
+  stats: run_stats.json
+
+sample:
+  start: "2010-01-01"           # pull start; 2010-2012 is rolling-beta warm-up only
+  end: "2025-12-31"
+  analysis_start: "2013-01-01"  # AR trimmed AFTER estimation; first date events may fall on
+
+returns:
+  artefact_cutoff: 1.0          # drop |log return| >= this (split artefacts)
+  winsor: [0.001, 0.999]        # pooled quantiles for ret_w
+
+fx:
+  # currency: [Yahoo ticker, invert?]; goal is USD per 1 unit of local currency.
+  # USD itself needs no series (fx_to_usd = 1, fx_return = 0).
+  tickers:
+    EUR: ["EURUSD=X", false]
+    GBP: ["GBPUSD=X", false]
+    SEK: ["USDSEK=X", true]
+    CHF: ["USDCHF=X", true]
+    DKK: ["USDDKK=X", true]
+    NOK: ["USDNOK=X", true]
+    PLN: ["USDPLN=X", true]
+    CZK: ["USDCZK=X", true]
+    ZAR: ["USDZAR=X", true]
+
+abnormal_returns:
+  y_col: excess_return_usd      # excess_return_w_usd gives the winsorised variant
+  factors: ["Mkt-RF", "SMB", "HML", "RMW", "CMA", "Mom"]
+  primary: w48
+  windows:                      # trading days: 48 months = 48 x 21
+    w48: {window: 1008, min_nobs: 1008}
+    w60: {window: 1260, min_nobs: 1260}
+
+regressions:
+  windows:
+    announce: {label: "ANNOUNCE [-1,+1]", offsets: [-1, 1]}
+    pre: {label: "PRE-EVENT [-5,-2]", offsets: [-5, -2]}
+    pre_narrow: {label: "PRE-EVENT [-3,-2]", offsets: [-3, -2]}
+
+  # Event sets are derived from analysis_group + event_type in the workbook, never hand-keyed.
+  specs:
+    CLEAN_RISK: {tier: identify, events: clean_risk, sign: pv_ar_sign, cluster: twoway}
+    CLEAN_RISK_INTRO: {tier: identify, events: clean_risk_intro, sign: pv_ar_sign, cluster: firm}
+    CLEAN_RISK_RESOLV: {tier: diagnostic, events: clean_risk_resolv, sign: pv_ar_sign, cluster: firm}
+    SUPPLY_PLACEBO: {tier: channel, events: supply_placebo, sign: supply_ar_sign, cluster: firm}
+    REINFORCING: {tier: channel, events: reinforcing, sign: pv_ar_sign, cluster: firm}
+    POOLED_SIGNED: {tier: robustness, events: pooled_signed, sign: pv_ar_sign, cluster: twoway}
+
+  # One entry per table column or row in the thesis. Defaults: every spec, announce + pre,
+  # primary AR, all firm-years, the spec's own clustering.
+  variants:
+    main: {}
+    reported: {sample: reported}                  # Table 8
+    w60: {ar: w60}                                # Table 5
+    quartile: {specs: [CLEAN_RISK], carbon_col: carbon_q4q1}    # Table 5
+    energy: {specs: [CLEAN_RISK], energy_control: true}         # Table 5
+    # Diagnostics behind the note to Table 4; no coefficients reported in the thesis.
+    resolv_twoway: {specs: [CLEAN_RISK_RESOLV], windows: [pre], cluster: twoway}
+    pre_narrow: {specs: [CLEAN_RISK, CLEAN_RISK_RESOLV], windows: [pre_narrow]}
+    # Not in the thesis. Event 17's pre-window contains event 16's announcement days;
+    # this variant removes such dates from treatment and control. See README.
+    pre_no_overlap: {specs: [CLEAN_RISK, CLEAN_RISK_RESOLV], windows: [pre], drop_announce_overlap: true}
+
+replication:
+  targets: thesis_targets.yaml  # set to null to skip the comparison

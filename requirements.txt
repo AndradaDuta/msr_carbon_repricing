@@ -1,0 +1,15 @@
+# Python 3.13. Pinned so standard errors and rolling estimates do not drift across versions.
+numpy==2.3.5
+pandas==2.2.3
+scipy==1.18.1
+statsmodels==0.15.0
+pyfixest==0.60.0
+pyarrow==26.0.0
+openpyxl==3.1.5
+PyYAML==6.0.3
+matplotlib==3.11.2
+tabulate==0.10.0
+requests==2.34.2
+yfinance==1.2.0
+pytest==9.2.0
+# Step 1 only, and it needs a WRDS account: pip install wrds

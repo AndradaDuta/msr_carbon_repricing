@@ -1,0 +1,73 @@
+# Every number the pipeline must reproduce, taken from the submitted thesis
+# (docs/Duta_Andrada_MSc_FIN.pdf) and the logs of the thesis run.
+
+counts:                         # must match exactly
+  returns_rows: 3763472         # stoxx600_daily_returns_2010_2025.parquet
+  merged_rows: 3763472          # after the factor merge
+  fx_missing_rows: 9121
+  usd_rows: 3754351
+  usd_firms: 1128               # Section 5.1
+  ar_rows_w48: 2657470          # Section 5.2
+  ar_firms_w48: 1052            # Section 5.1
+  ar_start_w48: "2013-11-18"    # run log
+  carbon_raw_rows: 24725        # Section 5.2 coverage ladder
+  carbon_raw_firms: 1106
+  carbon_present_rows: 14123
+  carbon_present_firms: 885
+  carbon_posrev_rows: 14091
+  carbon_nonpositive_dropped: 115
+  carbon_positive_rows: 13976
+  carbon_positive_firms: 880
+  carbon_firm_years: 8442
+  carbon_firms: 880
+  carbon_ar_overlap: 851
+  panel_rows_w48: 1957939
+  panel_firms_w48: 850
+  sample_firm_years: 8350
+  used_firm_years: 6898
+
+statistics:                     # tol = rounding of the published figure
+  ar_mean_bp: {value: -1.25, tol: 0.005}      # Table 1
+  ar_median_bp: {value: -1.12, tol: 0.005}
+  ar_sd_bp: {value: 219.66, tol: 0.005}
+  log_ci_mean: {value: -11.17, tol: 0.005}
+  log_ci_sd: {value: 2.49, tol: 0.005}
+  firms_per_day: {value: 841, tol: 0.5}       # Section 5.1
+  ar_carbon_corr: {value: 0.002, tol: 0.0005} # Section 5.2
+  tilt_t: {value: 0.98, tol: 0.005}           # Section 5.2
+  tilt_p: {value: 0.32, tol: 0.005}
+
+results:                        # bp; beta and se to two decimals, bound to one (Appendix C.1)
+  # Table 4
+  - {variant: main, spec: CLEAN_RISK, window: announce, beta: 0.80, se: 4.37, bound: 9.4}
+  - {variant: main, spec: CLEAN_RISK, window: pre, beta: -5.38, se: 3.16}
+  - {variant: main, spec: CLEAN_RISK_INTRO, window: announce, beta: 4.61, se: 3.22}
+  - {variant: main, spec: CLEAN_RISK_INTRO, window: pre, beta: -0.10, se: 2.66}
+  - {variant: main, spec: CLEAN_RISK_RESOLV, window: announce, beta: -1.83, se: 2.80}
+  - {variant: main, spec: CLEAN_RISK_RESOLV, window: pre, beta: -9.02, se: 2.04}
+  - {variant: main, spec: SUPPLY_PLACEBO, window: announce, beta: 3.42, se: 3.37}
+  - {variant: main, spec: SUPPLY_PLACEBO, window: pre, beta: 1.71, se: 1.09}
+  - {variant: main, spec: REINFORCING, window: announce, beta: -0.60, se: 2.82}
+  - {variant: main, spec: REINFORCING, window: pre, beta: 0.47, se: 1.83}
+  # Table 5
+  - {variant: main, spec: POOLED_SIGNED, window: announce, beta: 0.58, se: 2.45, bound: 5.4}
+  - {variant: main, spec: POOLED_SIGNED, window: pre, beta: -0.45, se: 2.11}
+  - {variant: w60, spec: CLEAN_RISK, window: announce, beta: 1.60, se: 4.43, bound: 10.3, n: 1781881}
+  - {variant: w60, spec: CLEAN_RISK, window: pre, beta: -5.77, se: 3.32, n: 1774028}
+  - {variant: quartile, spec: CLEAN_RISK, window: announce, beta: 4.11, se: 12.35, n: 970479}
+  - {variant: quartile, spec: CLEAN_RISK, window: pre, beta: -12.55, se: 9.75, n: 966219}
+  - {variant: energy, spec: CLEAN_RISK, window: announce, beta: 0.75, se: 4.26, bound: 9.1}
+  - {variant: energy, spec: CLEAN_RISK, window: pre, beta: -5.79, se: 2.98}
+  # Table 8
+  - {variant: reported, spec: CLEAN_RISK, window: announce, beta: 0.95, se: 4.57, bound: 9.9}
+  - {variant: reported, spec: CLEAN_RISK, window: pre, beta: -5.44, se: 3.28}
+  - {variant: reported, spec: CLEAN_RISK_INTRO, window: announce, beta: 5.54, se: 3.27}
+  - {variant: reported, spec: CLEAN_RISK_INTRO, window: pre, beta: 0.25, se: 2.70}
+  - {variant: reported, spec: CLEAN_RISK_RESOLV, window: announce, beta: -2.20, se: 2.85}
+  - {variant: reported, spec: CLEAN_RISK_RESOLV, window: pre, beta: -9.35, se: 2.06}
+  - {variant: reported, spec: SUPPLY_PLACEBO, window: announce, beta: 3.54, se: 3.37}
+  - {variant: reported, spec: SUPPLY_PLACEBO, window: pre, beta: 1.52, se: 1.09}
+  - {variant: reported, spec: REINFORCING, window: announce, beta: -0.93, se: 2.92}
+  - {variant: reported, spec: REINFORCING, window: pre, beta: 0.45, se: 1.83}
+  - {variant: reported, spec: POOLED_SIGNED, window: announce, beta: 0.89, se: 2.47, bound: 5.7}
+  - {variant: reported, spec: POOLED_SIGNED, window: pre, beta: -0.98, se: 2.03}
