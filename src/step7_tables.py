@@ -135,16 +135,21 @@ def run(cfg):
     (tables / "table5_robustness.tex").write_text(table5(results))
     (tables / "table8_reported.tex").write_text(table8(results))
 
-    firms_per_day = panel.groupby(DATE)[ID].nunique()
+    # Section 5.1's cross-section is the return panel, before the carbon merge.
+    ar = pd.read_parquet(processed_path(cfg, "ar", window=primary), columns=[ID, DATE, "AR"])
+    firms_per_day = ar.dropna(subset=["AR"]).groupby(DATE)[ID].nunique()
+    panel_firms_per_day = panel.groupby(DATE)[ID].nunique()
     record_stats(cfg, ar_mean_bp=float(summary.loc["Abnormal return AR (bp)", "Mean"]),
                  ar_median_bp=float(summary.loc["Abnormal return AR (bp)", "Median"]),
                  ar_sd_bp=float(summary.loc["Abnormal return AR (bp)", "SD"]),
                  log_ci_mean=float(summary.loc["log carbon intensity", "Mean"]),
                  log_ci_sd=float(summary.loc["log carbon intensity", "SD"]),
                  firms_per_day=float(firms_per_day.mean()),
+                 panel_firms_per_day=float(panel_firms_per_day.mean()),
                  ar_carbon_corr=float(panel["AR"].corr(panel[CARBON])))
     print(summary.round(2).to_string())
-    print(f"[7] average firms per trading day: {firms_per_day.mean():.0f}")
+    print(f"[7] average firms per day: return panel {firms_per_day.mean():.0f} | "
+          f"estimation panel {panel_firms_per_day.mean():.0f}")
     print(f"[7] wrote Tables 1, 4, 5, 8 -> {tables}")
 
 

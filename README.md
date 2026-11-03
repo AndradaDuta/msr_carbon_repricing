@@ -45,16 +45,18 @@ Every parameter varied in the thesis sits in `config.yaml`: rolling window and `
 
 Step 9 compares each run with `thesis_targets.yaml`: sample counts at every stage must match exactly, and each table cell must match to its printed precision (Tables 1, 4, 5, 8 and the Appendix C.1 bounds). The run exits non-zero and lists the mismatches if any cell differs.
 
+ Latest run on the licensed data: 102 of 102 checks match ([report](output/replication_report.md)).
+
 ## Preserved behaviour
 
 These are carried over unchanged so the run reproduces the thesis. They are recorded here because each is a choice a reader may want to revisit.
 
 - **Log returns compounded as simple.** Step 3 computes `(1 + ret)(1 + fx_return) - 1`, where `ret` is a log return. The error is about r²/2 per day: 12.5 bp on a 5% move.
 - **The trading-day grid inherits FX gaps.** A firm-day with no Yahoo rate is dropped (9,121 rows), event windows are counted on the surviving dates, and `end` is exclusive in yfinance, so 2025-12-31 is lost. A fresh FX download can therefore shift windows, which is why step 2 reuses snapshots.
-- **Universe is the union of historical constituents.** A firm stays in the panel outside its index-membership spell, giving 841 firms per day on average rather than 600.
+- **Universe is the union of historical constituents.** A firm stays in the panel outside its index-membership spell, giving 841 firms per day on average in the return panel, and 619 after the carbon merge, rather than 600.
 - **Holiday padding.** Compustat rows on market holidays stay in the panel with zero return. Events dated 1 January can sit on such a date.
 - **Carbon carry-forward.** `merge_asof` has no staleness tolerance.
-- **Window overlap across specifications.** Event 16's announcement days (22–23 June 2022) fall inside event 17's pre-window, so they carry sign −1 in the announcement specification and +1 in the pre-event one. No regression sees two signs for one date. The pipeline logs the overlap, and the `pre_no_overlap` variant, which is not in the thesis, re-estimates the pre-event rows without those dates.
+- **Window overlap across specifications.** Event 16's announcement days (22–23 June 2022) fall inside event 17's pre-window, so they carry sign −1 in the announcement specification and +1 in the pre-event one. No regression sees two signs for one date. The pipeline logs the overlap, the `pre_no_overlap` variant, which is not in the thesis, re-estimates the pre-event rows without those dates, and `python -m src.diagnostic_resolving` breaks down the resolving pre-event coefficient.
 
 ## Not ported
 

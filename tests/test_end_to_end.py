@@ -109,3 +109,16 @@ def test_every_replication_target_maps_to_a_pipeline_output(run):
     assert not missing, f"targets with no recorded statistic: {missing}"
     available = set(zip(results["variant"], results["spec"]))
     assert {(t["variant"], t["spec"]) for t in targets["results"]} <= available
+
+
+def test_resolving_diagnostic_reproduces_the_two_way_row(run):
+    from src import diagnostic_resolving
+
+    cfg, _, results = run
+    rows = diagnostic_resolving.run(cfg).set_index("row")
+    twoway = pick(results, "resolv_twoway", "CLEAN_RISK_RESOLV", PRE)
+    assert len(rows) == 5
+    assert rows.loc["all three events", "beta_bp"] == pytest.approx(twoway["beta_bp"])
+    assert rows.loc["all three events", "se_bp"] == pytest.approx(twoway["se_bp"])
+    assert rows.loc["without event 17", "events"] == 2
+    assert rows.loc["without 22-23 June 2022", "N"] < rows.loc["all three events", "N"]

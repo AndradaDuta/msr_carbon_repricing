@@ -32,7 +32,7 @@ statistics:                     # tol = rounding of the published figure
   ar_sd_bp: {value: 219.66, tol: 0.005}
   log_ci_mean: {value: -11.17, tol: 0.005}
   log_ci_sd: {value: 2.49, tol: 0.005}
-  firms_per_day: {value: 841, tol: 0.5}       # Section 5.1
+  firms_per_day: {value: 841, tol: 0.5}       # Section 5.1, return panel before the carbon merge
   ar_carbon_corr: {value: 0.002, tol: 0.0005} # Section 5.2
   tilt_t: {value: 0.98, tol: 0.005}           # Section 5.2
   tilt_p: {value: 0.32, tol: 0.005}
