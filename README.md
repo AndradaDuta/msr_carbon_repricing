@@ -39,7 +39,7 @@ Useful flags: `--from regressions`, `--to tables`, `--only abnormal_returns`. `-
 | 8 | `step8_figures.py` | Figure cell | Figures 1, 2 |
 | 9 | `step9_replication.py` | New | `output/replication_report.md` |
 
-Every parameter varied in the thesis sits in `config.yaml`: rolling window and `min_nobs`, event windows, clustering per specification, event sets, and each robustness variant. The notebooks remain in `notebooks/` as the record of the original run.
+Every parameter varied in the thesis sits in `config.yaml`: rolling window and `min_nobs`, event windows, clustering per specification, event sets, and each robustness variant. 
 
 ## Replication check
 
